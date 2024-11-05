@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anxiety Disorders Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .question {
+            margin-bottom: 15px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        p {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Quiz</h1>
+
+    <div id="quizForm">
+
+        
+    </div>
+    <button type="button" onclick="checkAnswers()">Check Answers</button>
+
+    <div id="result" class="result"></div>
+
+    <script>
+
+        // Your Firebase Realtime Database URL
+        var answers = {};
+
+        // Function to fetch data using POST
+        async function fetchData(url) {
+            console.log(url);
+            try {
+                const response = await fetch(url, {
+                method: 'GET', // Using GET request
+                headers: {
+                    'Content-Type': 'application/json'
+                }      
+                });
+
+                if (!response.ok) {
+                throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+            return null;
+        }
+
+
+        async function loadSystem()
+        {
+            var databaseURL = "https://pt-mcqs-default-rtdb.firebaseio.com/MCQs/";
+
+            // Get the current page URL
+            const currentUrl = new URL(window.location.href);
+
+            // Use URLSearchParams to get the query parameters
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            });
+
+            var caughtData = "";
+            if(param["subject"] != undefined)
+            {
+                if(param["lecture"] == undefined)
+                {
+                    caughtData = await fetchData(databaseURL+param["subject"]+".json");
+                    if (caughtData != null)
+                    {   
+                        
+                        const keys = Object.keys(caughtData);
+                        var count = 0;
+                        for (let i = 0; i < keys.length; i++) {
+                            const key = keys[i];
+                            caughtData[key].forEach((Q) => {
+                                count++;
+                                document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
+                                    <p>`+count.toString()+") "+Q["question"]+`</p>
+                                    <label><input type="radio" name="q`+count.toString()+`" value="A"> A) `+Q["choices"][0]+`</label><br>
+                                    <label><input type="radio" name="q`+count.toString()+`" value="B"> B) `+Q["choices"][1]+`</label><br>
+                                    <label><input type="radio" name="q`+count.toString()+`" value="C"> C) `+Q["choices"][2]+`</label><br>
+                                    <label><input type="radio" name="q`+count.toString()+`" value="D"> D) `+Q["choices"][3]+`</label>
+                                </div>`
+                                
+                                const list = ["A","B","C","D"];
+                                for (var i = 0; i < 4; i++) {
+                                    if(Q["choices"][i] == Q["answer"])
+                                    {
+                                        answers["q"+count.toString()] = list[i];
+                                    }
+                                }
+                                
+                            });
+                        }
+                    }
+                    else
+                    {
+                        alert("Error fetching data");
+                    }
+                }
+                else
+                {
+                    caughtData = await fetchData(databaseURL+param["subject"]+"/"+ param["lecture"]+".json");
+                    if (caughtData != null)
+                    {
+                        var count = 0;
+                        caughtData.forEach((Q) => {
+                                count++;
+                                document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
+                                <p>`+count.toString()+") "+Q["question"]+`</p>
+                                <label><input type="radio" name="q`+count.toString()+`" value="A"> A) `+Q["choices"][0]+`</label><br>
+                                <label><input type="radio" name="q`+count.toString()+`" value="B"> B) `+Q["choices"][1]+`</label><br>
+                                <label><input type="radio" name="q`+count.toString()+`" value="C"> C) `+Q["choices"][2]+`</label><br>
+                                <label><input type="radio" name="q`+count.toString()+`" value="D"> D) `+Q["choices"][3]+`</label>
+                            </div>`
+
+                        const list = ["A","B","C","D"];
+                        for (var i = 0; i < 4; i++) {
+                            if(Q["choices"][i] == Q["answer"])
+                            {
+                                answers["q"+count.toString()] = list[i];
+                            }
+                        }
+                        });
+                    }
+                    else
+                    {
+                        alert("Error fetching data");
+                    }
+                }
+            }
+            else
+            {
+                alert("Wrong URL");
+            }
+        }
+
+        // Function to generate a UUID
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function getUUID() 
+        {
+            // Check if a UUID already exists in localStorage
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = generateUUID();
+                localStorage.setItem('userId', userId);
+            }
+
+            return userId;
+        }
+
+        async function checkAnswers() {
+            let score = 0;
+            let totalQuestions = Object.keys(answers).length;
+
+            // Check each answer
+            for (const [question, correctAnswer] of Object.entries(answers)) {
+                const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                if (userAnswer && userAnswer.value === correctAnswer) {
+                    score++;
+                }
+            }
+
+            // Display the result
+            document.getElementById('result').textContent = `You scored ${score} out of ${totalQuestions}`;
+
+            // Get the current page URL
+            const currentUrl = new URL(window.location.href);
+
+            // Use URLSearchParams to get the query parameters
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            })
+            
+            if (param["subject"] != undefined) 
+            {
+                const databaseURL = "https://pt-mcqs-default-rtdb.firebaseio.com/Results/"
+                const key = getUUID();
+                // Construct the URL with the key (path) for the data
+                const url = `${databaseURL}${key}.json`;
+
+                try {
+                // Send data to Firebase with PUT method
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({score:`${score}/${totalQuestions}`, subject: param["subject"], lecture: param["lecture"]}) // Convert value to JSON format
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to set data');
+                }
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Check Connection and try again")
+                }
+            }
+        }
+
+        // Fetch data when the page loads
+        window.addEventListener('load', loadSystem);
+    </script>
+</body>
+</html>
