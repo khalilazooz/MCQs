@@ -313,7 +313,7 @@
                                     </div>
                                 </div>`
 
-                                if(Q["answer"] == true)
+                                if(Q["answer"] == "True")
                                 {
                                     answers["q"+count.toString()] = "A";
                                 }
@@ -350,32 +350,54 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
-                                                    A) True
+                                                    A) True, True
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
-                                                    B) False
+                                                    B) True, False
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
+                                                    C) False, True
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
+                                                    D) False, False
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>`
 
-                                if(Q["answer"] == true)
+
+
+                                if(Q["answer"] == ["True", "True"])
                                 {
                                     answers["q"+count.toString()] = "A";
                                 }
-                                else
+                                else if (Q["answer"] == ["True", "False"])
                                 {
                                     answers["q"+count.toString()] = "B";
+                                }
+                                else if (Q["answer"] == ["False", "True"])
+                                {
+                                    answers["q"+count.toString()] = "C";
+                                }
+                                else
+                                {
+                                    answers["q"+count.toString()] = "D";
                                 }
 
                             });
