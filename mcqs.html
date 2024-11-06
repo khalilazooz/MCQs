@@ -15,23 +15,16 @@
         h1 {
             color: #4CAF50;
         }
+        h5 {
+            display: inline-block;
+        }
+        a {
+            float: right;
+            text-decoration: none;
+        }
         .question {
             margin-bottom: 15px;
         }
-        .result {
-            margin-top: 20px;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-        .wronganswer {
-            outline: 1px solid rgb(197, 98, 98);
-            background-color: rgb(197, 98, 98);
-        }
-        .correctanswer {
-            outline: 1px solid #79e47c;
-            background-color: #79e47c;
-        }
-        
         /* Resetting default button styles */
         button {
         border: none;
@@ -58,8 +51,8 @@
         }
 
         .blue-button:active {
-        background-color: #1e6a8e;
-        transform: translateY(0);
+            background-color: #1e6a8e;
+            transform: translateY(0);
         }
     
     </style>
@@ -67,8 +60,9 @@
 <body>
     <h1 id="subject">Quiz</h1>
     <div id="quizForm"></div>
-    <button type="button" class="blue-button" onclick="checkAnswers()">Check Answers</button>
-    <div id="result" class="result"></div>
+    <button type="button" class="blue-button" onclick="checkAnswers()">Check Answers</button> <br/><br/>
+    <div id="result"></div>
+    
     <script>
         // Your Firebase Realtime Database URL
         var answers = {};
@@ -100,9 +94,26 @@
         {
             const radio = document.querySelectorAll(`input[name="q${question}"]`);
             radio.forEach((e) => {
-                e.parentNode.classList.remove("correctanswer");
-                e.parentNode.classList.remove("wronganswer");
+                e.parentNode.classList.remove("bg-success-subtle");
+                e.parentNode.classList.remove("border");
+                e.parentNode.classList.remove("border-success-subtle");
+                e.parentNode.classList.remove("bg-danger-subtle");
+                e.parentNode.classList.remove("border");
+                e.parentNode.classList.remove("border-danger-subtle");
+                ((document.querySelector(`input[name="q${question}"]`).parentNode).parentNode).parentNode.classList.remove("text-bg-info");
             })
+        }
+
+        function mark(question) {
+            const card = (document.querySelector(`input[name="q${question}"]`).parentNode).parentNode.parentNode;
+            if (card.matches(".text-bg-info"))
+            {
+                card.classList.remove("text-bg-info");
+            }
+            else
+            {
+                card.classList.add("text-bg-info");
+            }
         }
 
         async function loadSystem()
@@ -137,7 +148,10 @@
                                 count++;
                                 document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
                                     <div class="card">
-                                        <h5 class="card-header">`+count.toString()+") "+Q["question"]+`</h5>
+                                        <div class="card-header">
+                                            <h5>`+count.toString()+") "+Q["question"]+`</h5>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(`+count.toString()+`)">Mark</a>
+                                        </div>  
                                         <div class="card-body">
                                             <label><input type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)"> A) `+Q["choices"][0]+`</label><br>
                                             <label><input type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)"> B) `+Q["choices"][1]+`</label><br>
@@ -174,7 +188,10 @@
                                 count++;
                                 document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
                                     <div class="card">
-                                        <h5 class="card-header">`+count.toString()+") "+Q["question"]+`</h5>
+                                        <div class="card-header">
+                                            <h5>`+count.toString()+") "+Q["question"]+`</h5>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(`+count.toString()+`)">Mark</a>
+                                        </div>  
                                         <div class="card-body">
                                             <label><input type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)"> A) `+Q["choices"][0]+`</label><br>
                                             <label><input type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)"> B) `+Q["choices"][1]+`</label><br>
@@ -235,23 +252,42 @@
             // Check each answer
             for (const [question, correctAnswer] of Object.entries(answers)) {
                 const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                const CorrectAnswerRadio = document.querySelectorAll(`input[name="${question}"]`);
+
+                CorrectAnswerRadio.forEach((e) => {
+                    if (e.value === correctAnswer)
+                    {
+                        e.parentNode.classList.add("bg-success-subtle");
+                        e.parentNode.classList.add("border");
+                        e.parentNode.classList.add("border-success-subtle");
+                    }
+                })
+
                 if(userAnswer)
                 {
                     if (userAnswer.value === correctAnswer) {
                         score++;
-                        userAnswer.parentNode.classList.add("correctanswer");
                     }
                     else
                     {
-                        userAnswer.parentNode.classList.add("wronganswer");
+                        userAnswer.parentNode.classList.add("bg-danger-subtle");
+                        userAnswer.parentNode.classList.add("border");
+                        userAnswer.parentNode.classList.add("border-danger-subtle");
                     }
+                }
+                else
+                {
+                    alert("Cannot submit until you answer all the questions 😄");
+                    return ;
                 }
                 
             }
 
             // Display the result
-            document.getElementById('result').textContent = `You answerd ${score} out of ${totalQuestions} Correctly`;
-            alert(`You answerd ${score} out of ${totalQuestions} Correctly`);
+            document.getElementById('result').innerHTML = `<div class="alert alert-success alert-dismissible" role="alert">
+                                                                You answerd ${score} out of ${totalQuestions} Correctly
+                                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                                            </div>`;
 
 
             // Get the current page URL
@@ -293,6 +329,7 @@
             }
 
 
+            alert(`You answerd ${score} out of ${totalQuestions} Correctly`);
         }
 
         // Fetch data when the page loads
