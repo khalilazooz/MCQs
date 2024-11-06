@@ -227,7 +227,7 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
@@ -294,7 +294,7 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
@@ -349,8 +349,9 @@
                                 document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <h5>`+count.toString()+") "+Q["statement1"]+`</h5> <br />
+                                            <h5>`+ Q["statement2"]+`</h5>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
