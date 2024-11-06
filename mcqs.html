@@ -200,14 +200,15 @@
                 if (caughtData != null)
                 {   
                     var count = 0;
+                    var keys = null
+                    var len = 1
                     var LoopData = {}
                     /*MCQs*/
                     if(caughtData["mcqs"] != undefined)
                     {
-                        var len = 1
                         if(param["lecture"] == undefined)
                         {
-                            const keys = Object.keys(caughtData["mcqs"]);
+                            keys = Object.keys(caughtData["mcqs"]);
                             len = keys.length
                         }
 
@@ -273,13 +274,11 @@
                     /*True And false*/
                     if(caughtData["validity"] != undefined)
                     {
-                        var len = 1
                         if(param["lecture"] == undefined)
                         {
-                            const keys = Object.keys(caughtData["validity"]);
+                            keys = Object.keys(caughtData["validity"]);
                             len = keys.length
                         }
-
                         for (let i = 0; i < len; i++) {
                             if(param["lecture"] == undefined)
                             {
@@ -330,10 +329,9 @@
                     /*True And false*/
                     if(caughtData["double_validity"] != undefined)
                     {
-                        var len = 1
                         if(param["lecture"] == undefined)
                         {
-                            const keys = Object.keys(caughtData["double_validity"]);
+                            keys = Object.keys(caughtData["double_validity"]);
                             len = keys.length
                         }
 
@@ -352,7 +350,7 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
