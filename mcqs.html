@@ -21,6 +21,7 @@
         a {
             float: right;
             text-decoration: none;
+            cursor: pointer;
         }
         .question {
             margin-bottom: 15px;
@@ -100,19 +101,28 @@
                 e.parentNode.classList.remove("bg-danger-subtle");
                 e.parentNode.classList.remove("border");
                 e.parentNode.classList.remove("border-danger-subtle");
-                ((document.querySelector(`input[name="q${question}"]`).parentNode).parentNode).parentNode.classList.remove("text-bg-info");
+                ((document.querySelector(`input[name="q${question}"]`).parentNode).parentNode).parentNode.classList.remove("text-primary");
             })
         }
 
-        function mark(question) {
+        function mark(e, question) {
             const card = (document.querySelector(`input[name="q${question}"]`).parentNode).parentNode.parentNode;
-            if (card.matches(".text-bg-info"))
+            if (card.matches(".text-primary"))
             {
-                card.classList.remove("text-bg-info");
+                card.classList.remove("text-primary");
+                card.classList.remove("border-primary");
+
+                e.classList.remove("text-bg-primary");
+                e.classList.add("text-bg-secondary");
+
             }
             else
             {
-                card.classList.add("text-bg-info");
+                card.classList.add("text-primary");
+                card.classList.add("border-primary");
+
+                e.classList.add("text-bg-primary");
+                e.classList.remove("text-bg-secondary");
             }
         }
 
@@ -150,13 +160,33 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
-                                            <label><input type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)"> A) `+Q["choices"][0]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)"> B) `+Q["choices"][1]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)"> C) `+Q["choices"][2]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)"> D) `+Q["choices"][3]+`</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
+                                                     A) `+Q["choices"][0]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
+                                                     B) `+Q["choices"][1]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
+                                                     C) `+Q["choices"][2]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
+                                                     D) `+Q["choices"][3]+`
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>`
@@ -190,13 +220,33 @@
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" href="#" onclick="mark(`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
-                                            <label><input type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)"> A) `+Q["choices"][0]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)"> B) `+Q["choices"][1]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)"> C) `+Q["choices"][2]+`</label><br>
-                                            <label><input type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)"> D) `+Q["choices"][3]+`</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
+                                                     A) `+Q["choices"][0]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
+                                                     B) `+Q["choices"][1]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
+                                                     C) `+Q["choices"][2]+`
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
+                                                     D) `+Q["choices"][3]+`
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>`
@@ -250,6 +300,15 @@
             let totalQuestions = Object.keys(answers).length;
 
             // Check each answer
+            for (const [question] of Object.entries(answers)) {
+                const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
+                if(!userAnswer)
+                {
+                    alert("Cannot submit until you answer all the questions 😄");
+                    return ;
+                }
+            }
+
             for (const [question, correctAnswer] of Object.entries(answers)) {
                 const userAnswer = document.querySelector(`input[name="${question}"]:checked`);
                 const CorrectAnswerRadio = document.querySelectorAll(`input[name="${question}"]`);
@@ -275,11 +334,7 @@
                         userAnswer.parentNode.classList.add("border-danger-subtle");
                     }
                 }
-                else
-                {
-                    alert("Cannot submit until you answer all the questions 😄");
-                    return ;
-                }
+
                 
             }
 
@@ -288,7 +343,6 @@
                                                                 You answerd ${score} out of ${totalQuestions} Correctly
                                                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                                             </div>`;
-
 
             // Get the current page URL
             const currentUrl = new URL(window.location.href);
