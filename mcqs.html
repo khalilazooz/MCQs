@@ -69,26 +69,71 @@
         var answers = {};
 
         // Function to fetch data using POST
-        async function fetchData(url) {
-            console.log(url);
+        async function fetchData(urlPath) {
+            var output = {}
+            var mcqUrl = "https://pt-mcqs-default-rtdb.firebaseio.com/MCQs/" + urlPath;
+            var ValidityUrl = "https://pt-mcqs-default-rtdb.firebaseio.com/Validity/" + urlPath;
+            var DValidityUrl = "https://pt-mcqs-default-rtdb.firebaseio.com/DoubleValidity/" + urlPath;
             try {
-                const response = await fetch(url, {
-                method: 'GET', // Using GET request
-                headers: {
-                    'Content-Type': 'application/json'
-                }      
+                const McqResponse = await fetch(mcqUrl, {
+                    method: 'GET', // Using GET request
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }      
                 });
 
-                if (!response.ok) {
-                throw new Error('Network response was not ok');
+                if (!McqResponse.ok) {
+                    throw new Error('Network response was not ok');
                 }
-
-                const data = await response.json();
-                return data;
+                const mcqs = await McqResponse.json();
+                output["mcqs"] = mcqs;
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
-            return null;
+            
+            try {
+
+                const ValidityResponse = await fetch(ValidityUrl, {
+                    method: 'GET', // Using GET request
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }      
+                });
+
+                if (!ValidityResponse.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const Validity = await ValidityResponse.json();
+                output["validity"] = Validity;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+
+            try {
+                const DValidityResponse = await fetch(DValidityUrl, {
+                    method: 'GET', // Using GET request
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }      
+                });
+
+                if (!DValidityResponse.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const DValidity = await DValidityResponse.json();
+                output["double_validity"] = DValidity;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+
+            if(output == {})
+            {
+                return null;
+            }
+            else
+            {
+                return output;
+            }
         }
 
         function removeClass(question)
@@ -127,7 +172,6 @@
 
         async function loadSystem()
         {
-            var databaseURL = "https://pt-mcqs-default-rtdb.firebaseio.com/MCQs/";
 
             // Get the current page URL
             const currentUrl = new URL(window.location.href);
@@ -144,16 +188,39 @@
             {
                 if(param["lecture"] == undefined)
                 {
-                    document.getElementById("subject").innerHTML= param["subject"] + " All Lectures Quiz"
-                    caughtData = await fetchData(databaseURL+param["subject"]+".json");
-                    if (caughtData != null)
-                    {   
-                        
-                        const keys = Object.keys(caughtData);
-                        var count = 0;
-                        for (let i = 0; i < keys.length; i++) {
-                            const key = keys[i];
-                            caughtData[key].forEach((Q) => {
+                    document.getElementById("subject").innerHTML= param["subject"] + " All Lectures Quiz";
+                    caughtData = await fetchData(param["subject"]+".json");
+                }
+                else
+                {
+                    document.getElementById("subject").innerHTML= param["subject"] + " ("+param["lecture"]+") Quiz"
+                    caughtData = await fetchData(param["subject"]+"/"+param["lecture"]+".json");
+                }
+
+                if (caughtData != null)
+                {   
+                    var count = 0;
+                    var LoopData = {}
+                    /*MCQs*/
+                    if(caughtData["mcqs"] != undefined)
+                    {
+                        var len = 1
+                        if(param["lecture"] == undefined)
+                        {
+                            const keys = Object.keys(caughtData["mcqs"]);
+                            len = keys.length
+                        }
+
+                        for (let i = 0; i < len; i++) {
+                            if(param["lecture"] == undefined)
+                            {
+                                LoopData = caughtData["mcqs"][keys[i]];
+                            }
+                            else
+                            {
+                                LoopData = caughtData["mcqs"];
+                            }
+                            LoopData.forEach((Q) => {
                                 count++;
                                 document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
                                     <div class="card">
@@ -165,25 +232,25 @@
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
-                                                     A) `+Q["choices"][0]+`
+                                                    A) `+Q["choices"][0]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
-                                                     B) `+Q["choices"][1]+`
+                                                    B) `+Q["choices"][1]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
-                                                     C) `+Q["choices"][2]+`
+                                                    C) `+Q["choices"][2]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
-                                                     D) `+Q["choices"][3]+`
+                                                    D) `+Q["choices"][3]+`
                                                 </label>
                                             </div>
                                         </div>
@@ -199,72 +266,128 @@
                                 }
                                 
                             });
+
                         }
                     }
-                    else
+
+                    /*True And false*/
+                    if(caughtData["validity"] != undefined)
                     {
-                        alert("Error fetching data");
-                    }
-                }
-                else
-                {
-                    document.getElementById("subject").innerHTML= param["subject"] + " ("+param["lecture"]+") Quiz"
-                    caughtData = await fetchData(databaseURL+param["subject"]+"/"+ param["lecture"]+".json");
-                    if (caughtData != null)
-                    {
-                        var count = 0;
-                        caughtData.forEach((Q) => {
+                        var len = 1
+                        if(param["lecture"] == undefined)
+                        {
+                            const keys = Object.keys(caughtData["validity"]);
+                            len = keys.length
+                        }
+
+                        for (let i = 0; i < len; i++) {
+                            if(param["lecture"] == undefined)
+                            {
+                                LoopData = caughtData["validity"][keys[i]];
+                            }
+                            else
+                            {
+                                LoopData = caughtData["validity"];
+                            }
+                            LoopData.forEach((Q) => {
                                 count++;
                                 document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
                                     <div class="card">
                                         <div class="card-header">
                                             <h5>`+count.toString()+") "+Q["question"]+`</h5>
-                                            <a class="badge text-bg-secondary" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
-                                                     A) `+Q["choices"][0]+`
+                                                    A) True
                                                 </label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
-                                                     B) `+Q["choices"][1]+`
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
-                                                <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
-                                                     C) `+Q["choices"][2]+`
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
-                                                <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
-                                                     D) `+Q["choices"][3]+`
+                                                    B) False
                                                 </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>`
 
+                                if(Q["answer"] == true)
+                                {
+                                    answers["q"+count.toString()] = "A";
+                                }
+                                else
+                                {
+                                    answers["q"+count.toString()] = "B";
+                                }
 
-                               
-                        const list = ["A","B","C","D"];
-                        for (var i = 0; i < 4; i++) {
-                            if(Q["choices"][i] == Q["answer"])
-                            {
-                                answers["q"+count.toString()] = list[i];
-                            }
+                            });
                         }
-                        });
                     }
-                    else
+
+                    /*True And false*/
+                    if(caughtData["double_validity"] != undefined)
                     {
-                        alert("Error fetching data");
+                        var len = 1
+                        if(param["lecture"] == undefined)
+                        {
+                            const keys = Object.keys(caughtData["double_validity"]);
+                            len = keys.length
+                        }
+
+                        for (let i = 0; i < len; i++) {
+                            if(param["lecture"] == undefined)
+                            {
+                                LoopData = caughtData["double_validity"][keys[i]];
+                            }
+                            else
+                            {
+                                LoopData = caughtData["double_validity"];
+                            }
+                            LoopData.forEach((Q) => {
+                                count++;
+                                document.getElementById("quizForm").innerHTML = document.getElementById("quizForm").innerHTML + `<div class="question">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>`+count.toString()+") "+Q["question"]+`</h5>
+                                            <a class="badge text-bg-secondary" href="#" onclick="mark(this,`+count.toString()+`)">Mark</a>
+                                        </div>  
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
+                                                    A) True
+                                                </label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
+                                                    B) False
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`
+
+                                if(Q["answer"] == true)
+                                {
+                                    answers["q"+count.toString()] = "A";
+                                }
+                                else
+                                {
+                                    answers["q"+count.toString()] = "B";
+                                }
+
+                            });
+                        }
                     }
+
+                }
+                else
+                {
+                    alert("Error fetching data");
                 }
             }
             else
