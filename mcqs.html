@@ -422,16 +422,15 @@
                                 </div>`
 
 
-
-                                if(Q["answer"] == ["True", "True"])
+                                if((Q["answers"][0] == "True") &&  (Q["answers"][1] == "True"))
                                 {
                                     answers["q"+count.toString()] = "A";
                                 }
-                                else if (Q["answer"] == ["True", "False"])
+                                else if ((Q["answers"][0] == "True") &&  (Q["answers"][1] == "False"))
                                 {
                                     answers["q"+count.toString()] = "B";
                                 }
-                                else if (Q["answer"] == ["False", "True"])
+                                else if ((Q["answers"][0] == "False") &&  (Q["answers"][1] == "True"))
                                 {
                                     answers["q"+count.toString()] = "C";
                                 }
