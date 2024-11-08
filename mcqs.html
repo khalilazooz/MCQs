@@ -82,6 +82,17 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
         }
+
+
+        .alert-fixed {
+            position:fixed; 
+            bottom: 0px; 
+            float: right;
+            right: 20px; 
+            width: 300px;
+            z-index:9999; 
+            border-radius:0px
+        }
     </style>
 </head>
 <body>
@@ -102,11 +113,14 @@
         </div>
         <button type="button" class="blue-button" onclick="checkAnswers()">Check Answers</button> <br/><br/>
         <div id="result"></div>    
+        <div id="alert-shows" class="alert-fixed"></div>
     </div>
+
+
     <script>
         // Your Firebase Realtime Database URL
         var answers = {};
-
+        var MotivationIdx = 0;
         // Function to fetch data using POST
         async function fetchData(urlPath) {
             var output = {}
@@ -233,6 +247,33 @@
                     document.querySelector(`input[name="q${i}"][value="${soluations[`q${i}`]["answer"]}"]`).checked = true;
                 }
             }
+        }
+
+        function showUp() {
+                const listOfMotivations = [
+                    `قال رسول الله ﷺ: "احرص على ما ينفعك، واستعن بالله ولا تعجز"`,
+                    `وَمَا تَوْفِيقِي إِلَّا بِاللَّهِ`,
+                    `لا حول ولا قوة إلا بالله`,
+                    `اللهم إني أسألك فهم النبيين، وحفظ المرسلين والملائكة المقربين. اللهم اجعل ألسنتنا عامرة بذكرك، وقلوبنا بخشيتك، وأسرارنا بطاعتك، إنك على كل شيء قدير.`,
+                    `اللهم افتح لي أبواب حكمتك، وانشر علي رحمتك، وامنن علي بالحفظ والفهم، سبحانك لا علم لنا إلا ما علمتنا، إنك أنت العليم الحكيم.`,
+                    `اللهم إني أستودعك ما قرأت وما حفظت وما تعلمت، فرده إلي عند حاجتي إليه، إنك على كل شيء قدير.`,
+                    `للهم إني أستودعك ما تعلمت، فرده إلي عند حاجتي إليه، ولا تنسنيه يا رب العالمين.`,
+                    `رب اشرح لي صدري، ويسر لي أمري، واحلل عقدة من لساني يفقهوا قولي.`,
+                    `اللهم لا سهل إلا ما جعلته سهلاً، وأنت تجعل الحزن إذا شئت سهلاً.`,
+                    `🎉💪 شد حيلك يا سينيور خلاص هااانت`,
+                ];
+
+                var dataToshow = listOfMotivations[MotivationIdx];
+                MotivationIdx++;
+                if(MotivationIdx >= listOfMotivations.length)
+                {
+                    MotivationIdx = 0;
+                }
+                
+                document.getElementById("alert-shows").innerHTML =`<div class="alert alert-success alert-dismissible fade show" role="alert">
+                    ${dataToshow}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
         }
 
         async function update(element , question) {
@@ -702,6 +743,8 @@
 
         // Fetch data when the page loads
         window.addEventListener('load', loadSystem);
+
+        setInterval(showUp, 1000 * 60 * 2);
     </script>
 </body>
 </html>
