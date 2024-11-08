@@ -9,11 +9,11 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0px;
             line-height: 1.6;
         }
         h1 {
-            color: #4CAF50;
+            color: #198754;
         }
         h5 {
             display: inline-block;
@@ -31,6 +31,9 @@
         border: none;
         outline: none;
         cursor: pointer;
+        }
+        .body-container {
+            margin: 20px;
         }
 
         /* Styling the button */
@@ -82,23 +85,24 @@
     </style>
 </head>
 <body>
-    <h1 id="subject">Quiz</h1>
-    <div id="quizForm">
-        <br/><br/>
-            <div class="loader"></div>
-            <br/>
-            <label>Loading Questions</label>
-        <br/><br/>
+    <nav class="navbar bg-body-tertiary sticky-top">
+        <div class="container-fluid">
+            <h1 id="subject">Quiz</h1>
+            <button class="btn btn-outline-success" type="submit" onclick="restore()">restore prevoius soluations</button>
+        </div>
+      </nav>
+
+    <div class="body-container">
+        <div id="quizForm">
+            <br/><br/>
+                <div class="loader"></div>
+                <br/>
+                <label>Loading Questions</label>
+            <br/><br/>
+        </div>
+        <button type="button" class="blue-button" onclick="checkAnswers()">Check Answers</button> <br/><br/>
+        <div id="result"></div>    
     </div>
-    
-    <button type="button" class="blue-button" onclick="checkAnswers()">Check Answers</button> <br/><br/>
-    <div id="result"></div>
-    
-
-
-
-
-
     <script>
         // Your Firebase Realtime Database URL
         var answers = {};
@@ -171,7 +175,118 @@
             }
         }
 
-        function removeClass(question)
+        async function restore() {
+            var soluations = {};
+
+            const currentUrl = new URL(window.location.href);
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            });
+
+            if (param["subject"] != undefined) 
+            {
+                const databaseURL = "https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/"
+                const key = getUUID();
+                // Construct the URL with the key (path) for the data
+                var url = `${databaseURL}${key}/`;
+
+                var uploadedJson= {};
+                if(param["lecture"] != undefined)
+                {
+                    url = url+ param["subject"] + "/" + param["lecture"] + "/choosen.json";
+                }
+                else
+                {
+                    url = url+ param["subject"] + "/ALL/choosen.json";
+                }
+
+                try {
+                    // Send data to Firebase with PUT method
+                    const soluations_response = await fetch(url, {
+                        method: 'GET', // Using GET request
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }      
+                    });
+
+                    if (!soluations_response.ok) {
+                        throw new Error('Failed to set data');
+                    }
+                    soluations = await soluations_response.json();
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Check Connection and try again")
+                    return ;
+                }
+            }
+            else {
+                return ;
+            }
+
+            if(soluations != null)
+            {
+                var keys = Object.keys(soluations);
+                var soluations_length = keys.length;
+                for (var i = 1; i <= soluations_length; i++) {
+                    document.querySelector(`input[name="q${i}"][value="${soluations[`q${i}`]["answer"]}"]`).checked = true;
+                }
+            }
+        }
+
+        async function update(element , question) {
+            const currentUrl = new URL(window.location.href);
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            });
+
+            if (param["subject"] != undefined) 
+            {
+                const databaseURL = "https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/"
+                const key = getUUID();
+                // Construct the URL with the key (path) for the data
+                var url = `${databaseURL}${key}/`;
+
+                var uploadedJson= {};
+                if(param["lecture"] != undefined)
+                {
+                    url = url+ param["subject"] + "/" + param["lecture"] + "/choosen/q"+question.toString()+".json";
+                }
+                else
+                {
+                    url = url+ param["subject"] + "/ALL/choosen/q"+question.toString()+".json";
+                }
+
+                try {
+                // Send data to Firebase with PUT method
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({answer: element.value}) // Convert value to JSON format
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to set data');
+                }
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Check Connection and try again")
+                    return ;
+                }
+            }
+            else
+            {
+                return ;
+            }
+        }
+
+        async function UpdateTheRadio(e, question)
         {
             const radio = document.querySelectorAll(`input[name="q${question}"]`);
             radio.forEach((e) => {
@@ -182,6 +297,7 @@
                 e.parentNode.classList.remove("border");
                 e.parentNode.classList.remove("border-danger-subtle");
             })
+            await update(e, question);
         }
 
         function mark(e, question) {
@@ -193,7 +309,6 @@
 
                 e.classList.remove("text-bg-primary");
                 e.classList.add("text-bg-secondary");
-
             }
             else
             {
@@ -207,7 +322,6 @@
 
         async function loadSystem()
         {
-
             // Get the current page URL
             const currentUrl = new URL(window.location.href);
 
@@ -239,7 +353,6 @@
                     var len = 1
                     var LoopData = {}
 
-
                     document.getElementById("quizForm").innerHTML=""
 
                     /*MCQs*/
@@ -270,25 +383,25 @@
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
                                                     A) `+Q["choices"][0]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
                                                     B) `+Q["choices"][1]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
                                                     C) `+Q["choices"][2]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
                                                     D) `+Q["choices"][3]+`
                                                 </label>
@@ -337,13 +450,13 @@
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
                                                     A) True
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
                                                     B) False
                                                 </label>
@@ -394,25 +507,25 @@
                     //                     </div>  
                     //                     <div class="card-body">
                     //                         <div class="form-check">
-                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
                     //                             <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
                     //                                 A) True, True
                     //                             </label>
                     //                         </div>
                     //                         <div class="form-check">
-                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
                     //                             <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
                     //                                 B) True, False
                     //                             </label>
                     //                         </div>
                     //                         <div class="form-check">
-                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
                     //                             <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
                     //                                 C) False, True
                     //                             </label>
                     //                         </div>
                     //                         <div class="form-check">
-                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="removeClass(`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                    //                             <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
                     //                             <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
                     //                                 D) False, False
                     //                             </label>
