@@ -81,7 +81,7 @@
 
                 // Display the total count of messages
                 feedbackCount.innerHTML = `Total feedback entries: <strong>${messagesArray.length}</strong>`;
-                totalKeyCount.innerHTML = `Total keys in JSON: <strong>${totalKeyCountValue}</strong>`;
+                totalKeyCount.innerHTML = `Contributers: <strong>${totalKeyCountValue}</strong>`;
 
                 // Display sorted messages
                 messagesArray.forEach((messageItem) => {
@@ -103,7 +103,7 @@
             } else {
                 feedbackContainer.innerHTML = '<div class="alert alert-warning">No feedback available.</div>';
                 feedbackCount.innerHTML = 'Total feedback entries: <strong>0</strong>';
-                totalKeyCount.innerHTML = 'Total keys in JSON: <strong>0</strong>';
+                totalKeyCount.innerHTML = 'Contributers: <strong>0</strong>';
             }
         }
 
