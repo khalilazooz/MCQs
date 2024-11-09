@@ -100,9 +100,41 @@
         <div class="container-fluid">
             <h1 id="subject">Quiz</h1>
             <button class="btn btn-outline-success" type="submit" onclick="restore()">restore prevoius soluations</button>
+            <button class="btn btn-outline-success" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Help us improve</button>
         </div>
       </nav>
 
+
+      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Please add your comment to improve the website [Thanks in advance]</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="mb-3">
+                  <label for="recipient-name" class="col-form-label">Name [optional]:</label>
+                  <input type="text" class="form-control" id="recipient-name">
+                </div>
+                <div class="mb-3">
+                  <label for="message-text" class="col-form-label">Message:</label>
+                  <textarea class="form-control" id="message-text"></textarea>
+                </div>
+                <div class="mb-3" id="message-sent">
+                    
+                </div>
+
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-outline-success" onclick="SendImprovement()">Send message</button>
+            </div>
+          </div>
+        </div>
+      </div>
     <div class="body-container">
         <div id="quizForm">
             <br/><br/>
@@ -276,6 +308,82 @@
                 </div>`
         }
 
+        async function SendImprovement() {
+            const currentUrl = new URL(window.location.href);
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            });
+
+            if (param["subject"] != undefined) 
+            {
+                var name = document.getElementById("recipient-name").value;
+                const message = document.getElementById("message-text").value;
+                const message_sent_element = document.getElementById("message-sent");
+                
+                document.getElementById("message-text").value = ""
+                
+                const databaseURL = "https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/"
+                const key = getUUID();
+                // Construct the URL with the key (path) for the data
+                var url = `${databaseURL}${key}/`;
+
+                var uploadedJson= {};
+                if(param["lecture"] != undefined)
+                {
+                    url = url+ param["subject"] + "/" + param["lecture"] + "/messages.json";
+                }
+                else
+                {
+                    url = url+ param["subject"] + "/ALL/messages.json";
+                }
+
+                if(name == "")
+                {
+                    name = "Unknown";
+                }
+
+                if(message == "")
+                {
+                    message_sent_element.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    Must be a message to send
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+                    return ;
+                }
+
+                try {
+                // Send data to Firebase with PUT method
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({name: name , message: message}) // Convert value to JSON format
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to set data');
+                }
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    alert("Check Connection and try again")
+                    return ;
+                }
+
+
+                message_sent_element.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                    Thank you for sharing your opinion 🤩
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            }
+            else
+            {
+                return ;
+            }
+        }
         async function update(element , question) {
             const currentUrl = new URL(window.location.href);
             const params = new URLSearchParams(currentUrl.search);
@@ -744,7 +852,7 @@
         // Fetch data when the page loads
         window.addEventListener('load', loadSystem);
 
-        setInterval(showUp, 1000 * 60 * 5);
+        setInterval(showUp, 1000 * 60 * 2);
     </script>
 </body>
 </html>
