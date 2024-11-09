@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center display-4 text-primary fw-bold border-bottom pb-3">📢 People's Feedback</h1>
+        <div id="feedbackContainer" class="row g-3"></div>
+    </div>
+
+    <script>
+        // Function to format time from timestamp
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+
+        // Function to delete a specific message from Firebase
+        async function deleteMessage(path) {
+            if (confirm(`Are you sure you want to delete this message? \nhttps://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/${path}.json`)) {
+                console.log(`Deleting path: ${path}`); // Debugging log to ensure path is correct
+                await fetch(`https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/${path}.json`, {
+                    method: 'DELETE'
+                });
+                fetchFeedback(); // Refresh the feedback list
+            }
+        }
+
+        // Function to fetch feedback data using Firebase REST API
+        async function fetchFeedback() {
+            const response = await fetch('https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control.json');
+            const feedbackData = await response.json();
+            const feedbackContainer = document.getElementById('feedbackContainer');
+            feedbackContainer.innerHTML = ''; // Clear existing feedback
+
+            let messagesArray = [];
+
+            function searchForMessages(data, parentKeys = []) {
+                if (typeof data === 'object' && data !== null) {
+                    Object.keys(data).forEach((key) => {
+                        if (key === 'messages') {
+                            // Found a 'messages' key, iterate over the messages
+                            Object.keys(data[key]).forEach((messageKey) => {
+                                const messageItem = data[key][messageKey];
+                                messagesArray.push({
+                                    ...messageItem,
+                                    path: [...parentKeys, 'messages', messageKey].join('/'),
+                                    parentKeys: parentKeys.join(' - ')
+                                });
+                            });
+                        } else {
+                            // Recursively search in nested objects
+                            searchForMessages(data[key], [...parentKeys, key]);
+                        }
+                    });
+                }
+            }
+
+            if (feedbackData) {
+                searchForMessages(feedbackData);
+                // Sort messages by time in descending order
+                messagesArray.sort((a, b) => b.time - a.time);
+
+                // Display sorted messages
+                messagesArray.forEach((messageItem) => {
+                    const feedbackElement = document.createElement('div');
+                    feedbackElement.classList.add('col-12');
+                    feedbackElement.innerHTML = `
+                        <div class="card shadow-sm">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span class="text-secondary">${formatTime(messageItem.time)} by <span class="fw-bold">${messageItem.name}</span></span>
+                                <button class="btn btn-sm btn-danger" onclick="deleteMessage('${messageItem.path}')" aria-label="Delete">Delete</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-light border">${messageItem.message}</div>
+                            </div>
+                        </div>
+                    `;
+                    feedbackContainer.appendChild(feedbackElement);
+                });
+            } else {
+                feedbackContainer.innerHTML = '<div class="alert alert-warning">No feedback available.</div>';
+            }
+        }
+
+        // Call the function to fetch and display feedback every 30 seconds
+        fetchFeedback();
+        setInterval(fetchFeedback, 30000);
+    </script>
+</body>
+</html>
