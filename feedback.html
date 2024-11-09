@@ -24,7 +24,7 @@
 
         // Function to delete a specific message from Firebase
         async function deleteMessage(path) {
-            if (confirm('Are you sure you want to delete this message?')) {
+            if (confirm(`Are you sure you want to delete this message?\nhttps://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/${path}.json`)) {
                 console.log(`Deleting path: ${path}`); // Debugging log to ensure path is correct
                 await fetch(`https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/${path}.json`, {
                     method: 'DELETE'
