@@ -362,7 +362,7 @@
                     headers: {
                     'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({name: name , message: message}) // Convert value to JSON format
+                    body: JSON.stringify({name: name , message: message, time: Date.now()}) // Convert value to JSON format
                 });
 
                 if (!response.ok) {
