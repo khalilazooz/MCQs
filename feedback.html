@@ -90,7 +90,7 @@
                     feedbackElement.innerHTML = `
                         <div class="card shadow-sm">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <span class="text-secondary">${formatTime(messageItem.time)} by <span class="fw-bold">${messageItem.name}</span></span>
+                                <span class="text-secondary">${formatTime(messageItem.time)} by <span class="fw-bold">${messageItem.name} (${messageItem.path.split("/")[0]})</span></span>
                                 <button class="btn btn-sm btn-danger" onclick="deleteMessage('${messageItem.path}')" aria-label="Delete">Delete</button>
                             </div>
                             <div class="card-body">
