@@ -157,6 +157,16 @@
         var listOfMotivations = [];
         var MotivationIdx = 0;
 
+        function getPageParams() {
+            const currentUrl = new URL(window.location.href);
+            const params = new URLSearchParams(currentUrl.search);
+            var param = {};
+            params.forEach((value, key) => {
+                param[key] =value; 
+            });
+
+            return param;
+        }
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -312,7 +322,7 @@
         }
 
         function showUp() {
-
+                
                 var dataToshow = listOfMotivations[MotivationIdx];
                 MotivationIdx++;
                 if(MotivationIdx >= listOfMotivations.length)
@@ -873,7 +883,11 @@
         // Fetch data when the page loads
         window.addEventListener('load', loadSystem);
 
-        setInterval(showUp, 1000 * 60 * 2);
+        console.log("Page" , getPageParams());
+        if(!("showUp" in getPageParams()) || getPageParams()["showUp"]=="True")
+        {
+            setInterval(showUp, 1000 * 1 * 2);
+        }
     </script>
 </body>
 </html>
