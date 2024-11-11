@@ -316,7 +316,15 @@
                 var keys = Object.keys(soluations);
                 var soluations_length = keys.length;
                 for (var i = 1; i <= soluations_length; i++) {
-                    document.querySelector(`input[name="q${i}"][value="${soluations[`q${i}`]["answer"]}"]`).checked = true;
+                    var elem = document.querySelector(`input[name="q${i}"][title="${soluations[`q${i}`]["answer"]}"]`)
+                    if(elem != null)
+                    {
+                        elem.checked = true;
+                    }
+                    else
+                    {
+                        console.log(soluations[`q${i}`]["answer"]);
+                    }
                 }
             }
         }
@@ -413,14 +421,14 @@
             }
         }
 
-        async function update(element , question) {
+        async function update(question , selected) {
             const currentUrl = new URL(window.location.href);
             const params = new URLSearchParams(currentUrl.search);
             var param = {};
             params.forEach((value, key) => {
                 param[key] =value; 
             });
-
+            
             if (param["subject"] != undefined) 
             {
                 const databaseURL = "https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/"
@@ -445,7 +453,7 @@
                     headers: {
                     'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({answer: element.value}) // Convert value to JSON format
+                    body: JSON.stringify({answer: selected}) // Convert value to JSON format
                 });
 
                 if (!response.ok) {
@@ -464,8 +472,9 @@
             }
         }
 
-        async function UpdateTheRadio(e, question)
+        async function UpdateTheRadio(question, selected)
         {
+            console.log(selected);
             const radio = document.querySelectorAll(`input[name="q${question}"]`);
             radio.forEach((e) => {
                 e.parentNode.classList.remove("bg-success-subtle");
@@ -475,7 +484,7 @@
                 e.parentNode.classList.remove("border");
                 e.parentNode.classList.remove("border-danger-subtle");
             })
-            await update(e, question);
+            await update(question,selected);
         }
 
         function mark(e, question) {
@@ -563,25 +572,25 @@
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" title="`+Q["choices"][0]+`" onclick="UpdateTheRadio(`+count.toString()+`,'`+Q["choices"][0]+`')" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
                                                     A) `+Q["choices"][0]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" title="`+Q["choices"][1]+`" onclick="UpdateTheRadio(`+count.toString()+`,'`+Q["choices"][1]+`')" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
                                                     B) `+Q["choices"][1]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault3`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="C" title="`+Q["choices"][2]+`" onclick="UpdateTheRadio(`+count.toString()+`,'`+Q["choices"][2]+`')" id="flexRadioDefault3`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault3`+count.toString()+`">
                                                     C) `+Q["choices"][2]+`
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault4`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="D" title="`+Q["choices"][3]+`" onclick="UpdateTheRadio(`+count.toString()+`,'`+Q["choices"][3]+`')" id="flexRadioDefault4`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault4`+count.toString()+`">
                                                     D) `+Q["choices"][3]+`
                                                 </label>
@@ -630,13 +639,13 @@
                                         </div>  
                                         <div class="card-body">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault1`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="A" title="True" onclick="UpdateTheRadio(`+count.toString()+`,'True')" id="flexRadioDefault1`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault1`+count.toString()+`">
                                                     A) True
                                                 </label>
                                             </div>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" onclick="UpdateTheRadio(this,`+count.toString()+`)" id="flexRadioDefault2`+count.toString()+`">
+                                                <input class="form-check-input" type="radio" name="q`+count.toString()+`" value="B" title="False" onclick="UpdateTheRadio(`+count.toString()+`,'False')" id="flexRadioDefault2`+count.toString()+`">
                                                 <label class="form-check-label" for="flexRadioDefault2`+count.toString()+`">
                                                     B) False
                                                 </label>
@@ -886,7 +895,7 @@
         console.log("Page" , getPageParams());
         if(!("showUp" in getPageParams()) || getPageParams()["showUp"]=="True")
         {
-            setInterval(showUp, 1000 * 60 * 2);
+            setInterval(showUp, 1000 * 1 * 2);
         }
     </script>
 </body>
