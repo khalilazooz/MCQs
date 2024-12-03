@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQs Subjects</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">MCQs Browser</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Subjects and Lectures</h1>
+        <div id="content" class="row">
+            <div class="col-12 text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading subjects and lectures...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3 mt-5">
+        <p class="mb-0">Powered by Firebase | Created by ChatGpt</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Firebase database URLs
+        const subjectsUrl = "https://pt-mcqs-default-rtdb.firebaseio.com/MCQs.json";
+        const resultsUrlTemplate = "https://resultcontrol-e45c2-default-rtdb.firebaseio.com/Result-Control/{userId}/{subject}/{lecture}/score.json";
+
+        // HTML element to display subjects and lectures
+        const contentDiv = document.getElementById("content");
+
+        // Function to generate a UUID
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Function to get or set a UUID in localStorage
+        function getUUID() {
+            let userId = localStorage.getItem('userId');
+            if (!userId) {
+                userId = generateUUID();
+                localStorage.setItem('userId', userId);
+            }
+            return userId;
+        }
+
+        // Get user ID
+        const userId = getUUID();
+
+        // Fetch subjects and lectures
+        fetch(subjectsUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (!data) {
+                    contentDiv.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            No data found!
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Clear the loading spinner
+                contentDiv.innerHTML = "";
+
+                // Iterate over subjects
+                Object.keys(data).forEach(subject => {
+                    const subjectCard = document.createElement("div");
+                    subjectCard.className = "col-md-6 col-lg-4 mb-4";
+
+                    subjectCard.innerHTML = `
+                        <div class="card shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">${subject}</h5>
+                                <ul class="list-group list-group-flush" id="${subject}-lectures"></ul>
+                            </div>
+                        </div>
+                    `;
+
+                    contentDiv.appendChild(subjectCard);
+
+                    // Populate lectures for the subject
+                    const lectureList = subjectCard.querySelector(`#${subject}-lectures`);
+                    Object.keys(data[subject]).forEach(lecture => {
+                        const lectureItem = document.createElement("li");
+                        lectureItem.className = "list-group-item d-flex justify-content-between align-items-center";
+
+                        const lectureLink = document.createElement("a");
+                        lectureLink.href = `https://khalilazooz.github.io/MCQs/mcqs.html?subject=${encodeURIComponent(subject)}&lecture=${encodeURIComponent(lecture)}`;
+                        lectureLink.textContent = lecture;
+                        lectureLink.className = "text-decoration-none text-dark";
+
+                        const badgeContainer = document.createElement("div");
+
+                        lectureItem.appendChild(lectureLink);
+
+                        // Check if the user answered this lecture and get the score
+                        const resultsUrl = resultsUrlTemplate
+                            .replace("{userId}", userId)
+                            .replace("{subject}", encodeURIComponent(subject))
+                            .replace("{lecture}", encodeURIComponent(lecture));
+
+                        fetch(resultsUrl)
+                            .then(response => response.json())
+                            .then(score => {
+                                if (score !== null) {
+                                    const answeredBadge = document.createElement("span");
+                                    answeredBadge.className = "badge bg-success ms-2";
+                                    answeredBadge.textContent = `Score: ${score}`;
+                                    badgeContainer.appendChild(answeredBadge);
+                                } else {
+                                    const notAnsweredBadge = document.createElement("span");
+                                    notAnsweredBadge.className = "badge bg-secondary ms-2";
+                                    notAnsweredBadge.textContent = "Not Attempted";
+                                    badgeContainer.appendChild(notAnsweredBadge);
+                                }
+                            })
+                            .catch(error => {
+                                console.error(`Error checking score for ${subject} - ${lecture}:`, error);
+                                const errorBadge = document.createElement("span");
+                                errorBadge.className = "badge bg-danger ms-2";
+                                errorBadge.textContent = "Error";
+                                badgeContainer.appendChild(errorBadge);
+                            })
+                            .finally(() => {
+                                lectureItem.appendChild(badgeContainer);
+                            });
+
+                        lectureList.appendChild(lectureItem);
+                    });
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                contentDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Error loading data!
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>
