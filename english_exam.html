@@ -136,7 +136,7 @@
 
     questions.push({q, a, b, c, d});
 
-    if (current < 1) {
+    if (current < 20) {
       current++;
       document.getElementById('qnum').textContent = current;
       document.getElementById('question').value = "";
@@ -153,9 +153,9 @@
     document.getElementById('form-container').style.display = "none";
     const out = document.getElementById('output');
     out.style.display = "block";
-    let html = "<h3>Test on Unit 1</h3>";
+    let html = `<h3>Test on Unit ${unitNumber}</h3>`;
 
-    /*questions.forEach((item, index) => {
+    questions.forEach((item, index) => {
       html += `
         <div class="question">
           <b>(${index+1}) ${item.q}</b><br>
@@ -167,9 +167,9 @@
           </div>
         </div>
       `;
-    });*/
+    });
 	
-	for(var i =0 ; i<20 ; i++)
+	/*for(var i =0 ; i<20 ; i++)
 	{
 		html += `
 			<div class="question">
@@ -182,7 +182,7 @@
 			  </div>
 			</div>
 		  `;
-	}
+	}*/
 
     out.innerHTML = html;
 	document.getElementById('print-pdf').style.display = "block";
