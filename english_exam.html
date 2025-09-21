@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Exam Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0px;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+    button {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+    #output {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      line-height: 1.6;
+      padding: 30px;
+      box-sizing: border-box;
+      background: #f4f4f4;
+    }
+    #output h3 {
+      text-align: center;
+      margin-bottom: 10px;
+      margin-top: 0px;
+      text-decoration: underline;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-left: 20px;
+    }
+    .option {
+      white-space: nowrap;
+    }
+    .question {
+      margin-bottom: 8px;
+    }
+    @media print {
+		#output {
+			background: #fff;
+			margin: 0;
+			font-size: 12px;
+			border: 5px double #000;
+			padding: 30px;
+		}
+
+    }
+	
+			#print-pdf {
+			display:none;
+		}
+	#form-container {
+		display: none;
+		}
+  </style>
+</head>
+<body>
+<!-- Step 1: Ask for Unit -->
+<div class="container" id="unit-container">
+  <h2>Enter Unit Number</h2>
+  <input type="text" id="unitNumber" placeholder="Unit number" required>
+  <button onclick="startExam()">Start</button>
+</div>
+<div class="container" id="form-container">
+  <h2>Enter Question <span id="qnum">1</span> of 20</h2>
+  <input type="text" id="question" placeholder="Enter question" required>
+  <input type="text" id="choiceA" placeholder="Choice (a)" required>
+  <input type="text" id="choiceB" placeholder="Choice (b)" required>
+  <input type="text" id="choiceC" placeholder="Choice (c)" required>
+  <input type="text" id="choiceD" placeholder="Choice (d)" required>
+  <button onclick="nextQuestion()">Next</button>
+</div>
+
+<div id="output" style="display:none;"></div>
+<button id="print-pdf" onclick="savePDF()">Save as PDF</button>
+<script>
+  let questions = [];
+  let current = 1;
+  let unitNumber = "";
+  
+  function startExam() {
+    const unit = document.getElementById('unitNumber').value.trim();
+    if (!unit) {
+      alert("Please enter unit number!");
+      return;
+    }
+    unitNumber = unit;
+    document.getElementById('unit-container').style.display = "none";
+    document.getElementById('form-container').style.display = "block";
+  }
+  function nextQuestion() {
+    const q = document.getElementById('question').value.trim();
+    const a = document.getElementById('choiceA').value.trim();
+    const b = document.getElementById('choiceB').value.trim();
+    const c = document.getElementById('choiceC').value.trim();
+    const d = document.getElementById('choiceD').value.trim();
+
+    if (!q || !a || !b || !c || !d) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    questions.push({q, a, b, c, d});
+
+    if (current < 1) {
+      current++;
+      document.getElementById('qnum').textContent = current;
+      document.getElementById('question').value = "";
+      document.getElementById('choiceA').value = "";
+      document.getElementById('choiceB').value = "";
+      document.getElementById('choiceC').value = "";
+      document.getElementById('choiceD').value = "";
+    } else {
+      generateExam();
+    }
+  }
+
+  function generateExam() {
+    document.getElementById('form-container').style.display = "none";
+    const out = document.getElementById('output');
+    out.style.display = "block";
+    let html = "<h3>Test on Unit 1</h3>";
+
+    /*questions.forEach((item, index) => {
+      html += `
+        <div class="question">
+          <b>(${index+1}) ${item.q}</b><br>
+          <div class="options">
+            <span class="option">(a) ${item.a}</span>
+            <span class="option">(b) ${item.b}</span>
+            <span class="option">(c) ${item.c}</span>
+            <span class="option">(d) ${item.d}</span>
+          </div>
+        </div>
+      `;
+    });*/
+	
+	for(var i =0 ; i<20 ; i++)
+	{
+		html += `
+			<div class="question">
+			  <b>(${i+1}) ${questions[0].q}</b>
+			  <div class="options">
+				<span class="option">(a) ${questions[0].a}</span>
+				<span class="option">(b) ${questions[0].b}</span>
+				<span class="option">(c) ${questions[0].c}</span>
+				<span class="option">(d) ${questions[0].d}</span>
+			  </div>
+			</div>
+		  `;
+	}
+
+    out.innerHTML = html;
+	document.getElementById('print-pdf').style.display = "block";
+  }
+
+	function savePDF(){
+		document.getElementById('print-pdf').style.display = "none";
+		window.print();
+		document.getElementById('print-pdf').style.display = "block";
+	}
+</script>
+
+</body>
+</html>
