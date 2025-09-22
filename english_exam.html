@@ -9,7 +9,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0px;
+      margin: 0;
       background: #f4f4f4;
     }
     .container {
@@ -56,7 +56,7 @@
     #output h3 {
       text-align: center;
       margin-bottom: 10px;
-      margin-top: 0px;
+      margin-top: 0;
       text-decoration: underline;
     }
     .options {
@@ -71,23 +71,36 @@
     .question {
       margin-bottom: 8px;
     }
-    @media print {
-		#output {
-			background: #fff;
-			margin: 0;
-			font-size: 12px;
-			border: 5px double #000;
-			padding: 30px;
-		}
 
+    /* Print styles */
+    @media print {
+      #output {
+        background: #fff;
+        margin: 0;
+        font-size: 12px;
+        border: 5px double #000;
+        padding: 30px;
+      }
     }
-	
-			#print-pdf {
-			display:none;
-		}
-	#form-container {
-		display: none;
-		}
+
+    /* Force print mode for PDF */
+    #output.print-mode {
+      background: #fff;
+      margin: 0 !important;
+      font-size: 12px;
+      border: 5px double #000;
+      padding: 30px;
+      width: calc(100% - 10mm) !important; /* keep safe margin so right border doesn’t cut */
+      box-sizing: border-box;
+    }
+
+    #print-pdf {
+      display: none;
+    }
+
+    #form-container {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -97,6 +110,7 @@
   <input type="text" id="unitNumber" placeholder="Unit number" required>
   <button onclick="startExam()">Start</button>
 </div>
+
 <div class="container" id="form-container">
   <h2>Enter Question <span id="qnum">1</span> of 20</h2>
   <input type="text" id="question" placeholder="Enter question" required>
@@ -109,6 +123,10 @@
 
 <div id="output" style="display:none;"></div>
 <button id="print-pdf" onclick="savePDF()">Save as PDF</button>
+
+<!-- Load html2pdf.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+ 
 <script>
   let questions = [];
   let current = 1;
@@ -124,6 +142,7 @@
     document.getElementById('unit-container').style.display = "none";
     document.getElementById('form-container').style.display = "block";
   }
+
   function nextQuestion() {
     const q = document.getElementById('question').value.trim();
     const a = document.getElementById('choiceA').value.trim();
@@ -170,33 +189,31 @@
         </div>
       `;
     });
-	
-	/*for(var i =0 ; i<20 ; i++)
-	{
-		html += `
-			<div class="question">
-			  <b>(${i+1}) ${questions[0].q}</b>
-			  <div class="options">
-				<span class="option">(a) ${questions[0].a}</span>
-				<span class="option">(b) ${questions[0].b}</span>
-				<span class="option">(c) ${questions[0].c}</span>
-				<span class="option">(d) ${questions[0].d}</span>
-			  </div>
-			</div>
-		  `;
-	}*/
 
     out.innerHTML = html;
-	document.getElementById('print-pdf').style.display = "block";
+    document.getElementById('print-pdf').style.display = "block";
   }
 
-	function savePDF(){
-		document.getElementById('print-pdf').style.display = "none";
-		window.print();
-		document.getElementById('print-pdf').style.display = "block";
-	}
+  function savePDF(){
+    const element = document.getElementById("output");
+
+    // Apply print styles manually
+    element.classList.add("print-mode");
+
+    const opt = {
+      margin: [3, 3, 3, 3], // safe margins (top, right, bottom, left)
+      filename: 'exam.pdf',
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+      jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+      element.classList.remove("print-mode");
+    });
+  }
 </script>
 
 </body>
 </html>
-
