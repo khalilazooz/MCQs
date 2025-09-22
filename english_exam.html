@@ -55,7 +55,7 @@
     }
     #output h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       margin-top: 0;
       text-decoration: underline;
     }
@@ -70,6 +70,19 @@
     }
     .question {
       margin-bottom: 10px;
+    }
+    .exam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    .exam-header-left {
+      font-weight: bold;
+    }
+    .exam-header-right {
+      text-align: right;
     }
 
     /* Print styles */
@@ -90,7 +103,7 @@
       font-size: 12px;
       border: 5px double #000;
       padding: 30px;
-      width: calc(100% - 10mm) !important; /* keep safe margin so right border doesn’t cut */
+      width: calc(100% - 10mm) !important; /* safe margin */
       box-sizing: border-box;
     }
 
@@ -110,6 +123,7 @@
   <input type="text" id="unitNumber" placeholder="Unit number" required>
   <button onclick="startExam()">Start</button>
 </div>
+
 
 <div class="container" id="form-container">
   <h2>Enter Question <span id="qnum">1</span> of 20</h2>
@@ -174,7 +188,16 @@
     document.getElementById('form-container').style.display = "none";
     const out = document.getElementById('output');
     out.style.display = "block";
-    let html = `<h1>Test on Unit ${unitNumber}</h1>`;
+
+    let html = `
+      <div class="exam-header">
+        <h1 class="exam-header-left">Test on Unit ${unitNumber}</h1>
+        <div class="exam-header-right">
+          Name/ ........................................<br>
+          Class/ ........................................
+        </div>
+      </div>
+    `;
 
     questions.forEach((item, index) => {
       html += `
@@ -196,12 +219,10 @@
 
   function savePDF(){
     const element = document.getElementById("output");
-
-    // Apply print styles manually
     element.classList.add("print-mode");
 
     const opt = {
-      margin: [3, 10, 3, 3], // safe margins (top, right, bottom, left)
+      margin: [2, 10, 2, 3],
       filename: 'exam.pdf',
       image: { type: 'jpeg', quality: 1 },
       html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
